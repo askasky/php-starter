@@ -1,0 +1,42 @@
+version: '3.1'
+services:
+  nginx-php-fpm:
+    build:
+      context: docker/nginx-php-fpm
+    volumes:
+      - ./src:/var/www/html
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      ENABLE_XDEBUG: 1
+      XDEBUG_CONFIG: remote_host=192.168.1.106
+      PHP_IDE_CONFIG: serverName=localhost
+    links:
+      - mariadb:db
+    restart: always
+
+  mariadb:
+    build:
+      context: docker/mariadb
+    volumes:
+      - mysql-data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: 123456
+      MYSQL_USER: docker
+      MYSQL_PASSWORD: 123456
+      MYSQL_DATABASE: sample_db
+    restart: always
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    ports:
+      - "8080:80"
+    links:
+      - mariadb:db
+    restart: always
+
+volumes:
+  mysql-data:
